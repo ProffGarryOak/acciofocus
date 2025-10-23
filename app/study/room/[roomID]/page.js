@@ -394,9 +394,10 @@ export default function RoomStudyPage({ params }) {
               return (
                 <div key={member.id} className="flex items-center gap-3 p-3 bg-slate-700/50 rounded-lg">
                   <div className="relative">
-                    <img 
+                    <Image 
                       src={member.avatar || '/avatars/default.jpg'}
                       alt={member.name} 
+                      width={40} height={40}
                       className="w-10 h-10 rounded-full border-2 border-green-400" 
                     />
                     <div className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-slate-800 ${
@@ -979,7 +980,7 @@ export default function RoomStudyPage({ params }) {
               {mockRoomUsers.map(user => (
                 <div key={user.id}>
                   <div className="flex items-center gap-2 mb-1">
-                    <img src={user.avatar} alt={user.name} className="w-7 h-7 rounded-full border-2 border-green-400" />
+                    <Image src={user.avatar} alt={user.name} width={28} height={28} className="w-7 h-7 rounded-full border-2 border-green-400" />
                     <span className="font-semibold text-green-900">{user.name}</span>
                   </div>
                   {/* Mock tasks for each user */}

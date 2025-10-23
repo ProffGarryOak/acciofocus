@@ -9,6 +9,7 @@ import {
     FaCheck, FaExclamationTriangle, FaSpinner, FaEllipsisV, FaCheckCircle,
 } from 'react-icons/fa';
 import Navbar from '@/components/navbar';
+import Image from 'next/image';
 import PageLoader from '@/components/Loader';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -446,7 +447,7 @@ export default function StudyRoomsPage() {
                         <div className="flex flex-col items-center justify-center px-4 max-w-md mx-auto">
                             <div className="relative mb-6">
                                 <div className="w-40 h-40 rounded-full bg-gray-100 flex items-center justify-center">
-                                    <img src="/16.png" alt="Empty State" className="w-40 h-40" />
+                                    <Image src="/16.png" alt="Empty State" width={160} height={160} className="w-40 h-40" />
                                 </div>
                                 <div className="absolute -bottom-2 -right-2 bg-white p-2 rounded-full shadow-sm">
                                     <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">

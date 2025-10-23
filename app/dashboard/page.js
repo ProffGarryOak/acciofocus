@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { FaCrown, FaCheckCircle, FaTrophy, FaUserFriends, FaStar, FaFire, FaBook, FaClock, FaChartLine, FaTasks, FaMedal, FaUsers, FaDoorOpen, FaEllipsisV, FaPlus } from 'react-icons/fa';
 import Navbar from '@/components/navbar';
+import Image from 'next/image';
 
 import TasksSection from '@/components/dashboard/Tasks';
 import RecentSessions from '@/components/dashboard/Sessions';
@@ -380,7 +381,7 @@ export default function DashboardPage() {
                   >
                     <div className="flex items-start">
                       <div className="relative">
-                        <img 
+                        <Image 
                           src={friend.avatar} 
                           alt={friend.name} 
                           className="w-12 h-12 rounded-full border-2 border-green-300" 

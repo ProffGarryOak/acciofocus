@@ -2,6 +2,7 @@ import Navbar from "../components/navbar";
 import Link from "next/link";
 import { FaCheck, FaChartLine, FaUsers, FaHeadphones, FaClock, FaTrophy, FaLeaf, FaUserFriends, FaLock } from "react-icons/fa";
 import { IoMdRocket } from "react-icons/io";
+import Image from "next/image";
 
 export default function Home() {
   return (
@@ -36,7 +37,7 @@ export default function Home() {
             </div>
           </div>
           <div className="w-full md:w-1/2 flex justify-center">
-             </div>
+         </div>
         </section>
 
 
@@ -60,7 +61,7 @@ export default function Home() {
             </div>
             {/* Image */}
             <div className="flex justify-center mb-6 md:mb-0">
-              <img src="/D.png" alt="Solo Session Illustration" className="w-full max-w-xs md:max-w-sm h-auto object-contain drop-shadow-lg" />
+              <Image src="/D.png" alt="Solo Session Illustration" width={400} height={300} className="w-full max-w-xs md:max-w-sm h-auto object-contain drop-shadow-lg" />
             </div>
           </div>
         </section>
@@ -128,7 +129,7 @@ export default function Home() {
             </div>
             {/* Image */}
             <div className="flex justify-center mb-6 md:mb-0">
-              <img src="/A.png" alt="Solo Session Illustration" className="w-full max-w-xs md:max-w-sm h-auto object-contain drop-shadow-lg" />
+              <Image src="/A.png" alt="Solo Session Illustration" width={400} height={300} className="w-full max-w-xs md:max-w-sm h-auto object-contain drop-shadow-lg" />
             </div>
           </div>
         </section>
