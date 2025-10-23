@@ -14,6 +14,7 @@ import Timer from "../../../../components/Timer";
 import TaskList from "../../../../components/TaskList";
 import Background from "../../../../components/Background";
 import AmbientAudio from "../../../../components/AmbientAudio";
+import Image from "next/image";
 
 // Constants for backgrounds and sounds
 const staticBgOptions = [

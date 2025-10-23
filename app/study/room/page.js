@@ -748,7 +748,7 @@ function CreateRoomModal({ newRoom, setNewRoom, onClose, onCreate, loading }) {
                             <div className="mt-3 bg-blue-50 border border-blue-100 rounded-lg p-3 flex items-start gap-2">
                                 <FaInfoCircle className="text-blue-500 mt-0.5 flex-shrink-0" />
                                 <span className="text-sm text-blue-800">
-                                    Private rooms require an invitation key. You'll receive a unique key after creation.
+                                    Private rooms require an invitation key. You&apos;ll receive a unique key after creation.
                                 </span>
                             </div>
                         )}

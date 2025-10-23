@@ -401,7 +401,7 @@ const TestimonialCard = ({ name, role, quote, avatar }) => (
         <p className="text-gray-600 text-sm">{role}</p>
       </div>
     </div>
-    <p className="text-gray-600 italic">"{quote}"</p>
+    <p className="text-gray-600 italic">&quot;{quote}&quot;</p>
     <div className="flex mt-4 text-amber-400">
       {[...Array(5)].map((_, i) => (
         <svg key={i} xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
