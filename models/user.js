@@ -166,7 +166,7 @@ const UserSchema = new mongoose.Schema({
 
 // Indexes for better performance
 UserSchema.index({ 'profile.email': 1 });
-UserSchema.index({ 'profile.id': 1 });
+// Removed duplicate index for profile.id (unique: true already creates it)
 UserSchema.index({ 'studyRooms.id': 1 });
 UserSchema.index({ 'studyRooms.isPrivate': 1 });
 UserSchema.index({ 'studyRooms.category': 1 });

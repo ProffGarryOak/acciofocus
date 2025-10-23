@@ -6,17 +6,16 @@ import User from '@/models/user';
 
 export async function PATCH(request, { params }) {
   try {
-    const authResult = auth();
-    // Fix: Clerk's auth() returns { userId, ... }, not user.email
-    if (!authResult?.userId) {
+    const { userId } = await auth();
+    if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     await connectDB();
     const { roomId } = params;
 
-    // Find user by Clerk userId
-    const user = await User.findOne({ 'auth.clerkId': authResult.userId });
+    // Find user by Clerk userId (profile.id)
+    const user = await User.findOne({ 'profile.id': userId });
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }

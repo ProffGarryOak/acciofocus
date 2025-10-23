@@ -66,13 +66,44 @@ const mockRoomUsers = [
 ];
 const statusEmoji = { focused: '🧠', break: '☕', afk: '💤' };
 
-export default function RoomStudyPage() {
+export default function RoomStudyPage({ params }) {
+  // Room data state
+  const [roomData, setRoomData] = useState(null);
+  const [roomMembers, setRoomMembers] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Unwrap params if it's a Promise (Next.js 14+)
+  const resolvedParams = typeof params?.then === 'function' ? React.use(params) : params;
+
   // Controllers/hooks
   const fullscreenRef = useRef(null);
   const tingRef = useRef(null);
   const {
     menuOpen, setMenuOpen, menuRef
   } = useMenu();
+
+  // Room data fetching function
+  const fetchRoomData = async () => {
+    try {
+      const response = await fetch(`/api/rooms/${resolvedParams.roomID}`);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch room data: ${response.statusText}`);
+      }
+      const data = await response.json();
+      setRoomData(data.room);
+      setRoomMembers(data.members);
+      setIsLoading(false);
+    } catch (err) {
+      setError(err.message);
+      setIsLoading(false);
+    }
+  };
+
+  // Fetch room data on mount and roomId change
+  useEffect(() => {
+    fetchRoomData();
+  }, [resolvedParams.roomID]);
   const {
     rightMenuOpen, setRightMenuOpen, rightMenuRef
   } = useRightMenu();
@@ -205,11 +236,64 @@ export default function RoomStudyPage() {
 
   return (
     <div ref={fullscreenRef} className="w-screen h-screen min-h-0 min-w-0 overflow-hidden relative flex flex-col bg-gradient-to-br from-gray-900 to-slate-900">
+      {/* Loading State */}
+      {isLoading && (
+        <div className="absolute inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="flex flex-col items-center gap-4">
+            <div className="w-16 h-16 border-4 border-green-500 border-t-transparent rounded-full animate-spin"></div>
+            <p className="text-white text-lg font-medium">Loading room...</p>
+          </div>
+        </div>
+      )}
+
+      {/* Error State */}
+      {error && !isLoading && (
+        <div className="absolute inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="bg-red-500/10 backdrop-blur-md p-8 rounded-xl max-w-lg mx-4 border border-red-500/20">
+            <div className="flex flex-col items-center gap-4 text-center">
+              <div className="w-16 h-16 rounded-full bg-red-500/20 flex items-center justify-center">
+                <FaTimes className="w-8 h-8 text-red-500" />
+              </div>
+              <h2 className="text-xl font-bold text-white">Error Loading Room</h2>
+              <p className="text-red-200">{error}</p>
+              <div className="flex gap-4 mt-4">
+                <Link
+                  href="/study/room"
+                  className="px-6 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg font-medium transition-all"
+                >
+                  Back to Rooms
+                </Link>
+                <button
+                  onClick={() => {
+                    setError(null);
+                    setIsLoading(true);
+                    fetchRoomData();
+                  }}
+                  className="px-6 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium transition-all"
+                >
+                  Try Again
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       {/* Top Bar: Room title left, menu items right */}
       <div className="fixed top-4 left-0 right-0 z-40 flex items-center justify-between px-6">
         <div className="flex items-center gap-2">
           <div className="w-3 h-3 rounded-full bg-green-400 animate-pulse"></div>
-          <h1 className="font-bold text-white text-lg md:text-2xl">Study Room: <span className="text-blue-300">Academic Focus</span></h1>
+          <h1 className="font-bold text-white text-lg md:text-2xl">
+            {roomData ? (
+              <>
+                Study Room: <span className="text-blue-300">{roomData.name}</span>
+                {roomData.category && (
+                  <span className="text-sm text-gray-400 ml-2">({roomData.category})</span>
+                )}
+              </>
+            ) : (
+              'Study Room'
+            )}
+          </h1>
         </div>
         <div className="flex flex-row-reverse gap-4">
           <Link
@@ -320,7 +404,7 @@ export default function RoomStudyPage() {
       {showParticipants && (
         <div className="absolute top-16 left-4 z-40 w-72 bg-slate-800 rounded-xl shadow-2xl p-4">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-white font-bold">Participants</h2>
+            <h2 className="text-white font-bold">Participants ({roomMembers.length})</h2>
             <button 
               className="text-gray-400 hover:text-white"
               onClick={() => setShowParticipants(false)}
@@ -330,36 +414,41 @@ export default function RoomStudyPage() {
           </div>
           
           <div className="space-y-3">
-            {mockRoomUsers.map(u => (
-              <div key={u.id} className="flex items-center gap-3 p-3 bg-slate-700/50 rounded-lg">
-                <div className="relative">
-                  <img 
-                    src={u.avatar} 
-                    alt={u.name} 
-                    className="w-10 h-10 rounded-full border-2 border-green-400" 
-                  />
-                  <div className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-slate-800 ${
-                    u.status === 'focused' ? 'bg-green-500' : 
-                    u.status === 'break' ? 'bg-yellow-500' : 'bg-gray-500'
-                  }`}></div>
-                </div>
-                
-                <div className="flex-1">
-                  <div className="flex justify-between">
-                    <span className="font-medium text-white">{u.name}</span>
-                    <span className="text-xs text-gray-400">{u.today}m today</span>
+            {roomMembers.map(member => {
+              const isActive = new Date(member.lastActive).getTime() > Date.now() - 5 * 60 * 1000;
+              const status = isActive ? 'active' : 'away';
+              
+              return (
+                <div key={member.id} className="flex items-center gap-3 p-3 bg-slate-700/50 rounded-lg">
+                  <div className="relative">
+                    <img 
+                      src={member.avatar || '/avatars/default.jpg'}
+                      alt={member.name} 
+                      className="w-10 h-10 rounded-full border-2 border-green-400" 
+                    />
+                    <div className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-slate-800 ${
+                      isActive ? 'bg-green-500' : 'bg-gray-500'
+                    }`}></div>
                   </div>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className="text-xs bg-slate-600 px-2 py-0.5 rounded-full text-white">
-                      {statusEmoji[u.status]} {u.status.charAt(0).toUpperCase() + u.status.slice(1)}
-                    </span>
-                    <span className="text-xs bg-amber-900/50 px-2 py-0.5 rounded-full text-amber-300">
-                      🔥 {u.streak} day streak
-                    </span>
+                  
+                  <div className="flex-1">
+                    <div className="flex justify-between">
+                      <span className="font-medium text-white">{member.name}</span>
+                    </div>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-xs bg-slate-600 px-2 py-0.5 rounded-full text-white">
+                        {status === 'active' ? '🟢' : '⚪'} {status.charAt(0).toUpperCase() + status.slice(1)}
+                      </span>
+                      {member.streak > 0 && (
+                        <span className="text-xs bg-amber-900/50 px-2 py-0.5 rounded-full text-amber-300">
+                          🔥 {member.streak} day streak
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}

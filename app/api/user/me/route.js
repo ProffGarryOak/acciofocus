@@ -58,16 +58,61 @@ export async function GET() {
       }
     }
 
+    // Attempt to sync latest Clerk profile (avatar/name/email) to MongoDB when present
+    try {
+      const clerkCurrent = await currentUser();
+      if (clerkCurrent) {
+        const updateFields = {};
+        if (clerkCurrent.imageUrl && clerkCurrent.imageUrl !== user.profile.avatar) {
+          updateFields['profile.avatar'] = clerkCurrent.imageUrl;
+        }
+        const clerkName = `${clerkCurrent.firstName || ''} ${clerkCurrent.lastName || ''}`.trim();
+        if (clerkName && clerkName !== user.profile.name) {
+          updateFields['profile.name'] = clerkName;
+        }
+        if (clerkCurrent.emailAddresses?.[0]?.emailAddress && clerkCurrent.emailAddresses[0].emailAddress !== user.profile.email) {
+          updateFields['profile.email'] = clerkCurrent.emailAddresses[0].emailAddress;
+        }
+
+        if (Object.keys(updateFields).length > 0) {
+          const { default: connectDB } = await import('@/config/db');
+          const { default: User } = await import('@/models/user');
+          await connectDB();
+          user = await User.findOneAndUpdate(
+            { 'profile.id': userId },
+            { $set: updateFields },
+            { new: true }
+          );
+          console.log('Synced Clerk profile to MongoDB for user:', userId, updateFields);
+        }
+      }
+    } catch (syncErr) {
+      console.error('Error syncing Clerk profile on GET /api/user/me:', syncErr);
+      // continue without failing the request
+    }
+
     // Update last active timestamp
     await updateUserLastActive(userId);
 
     // Return user data (excluding sensitive information)
+    // Build avatar URL with a cache-busting query param based on user.updatedAt
+    let avatarUrl = user.profile.avatar || '/default-avatar.png';
+    try {
+      const ts = user.updatedAt ? new Date(user.updatedAt).getTime() : Date.now();
+      if (avatarUrl && typeof avatarUrl === 'string') {
+        const separator = avatarUrl.includes('?') ? '&' : '?';
+        avatarUrl = `${avatarUrl}${separator}v=${ts}`;
+      }
+    } catch (err) {
+      console.warn('Unable to append cache buster to avatar URL', err);
+    }
+
     const userData = {
-      profile:user.profile,
+      profile: user.profile,
       id: user.profile.id,
       name: user.profile.name,
       email: user.profile.email,
-      avatar: user.profile.avatar,
+      avatar: avatarUrl,
       joinDate: user.profile.joinDate,
       lastActive: user.profile.lastActive,
       streak: user.profile.streak,
@@ -97,7 +142,7 @@ export async function GET() {
 
 export async function PUT(req) {
   try {
-    const { userId } = auth();
+    const { userId } = await auth();
 
     if (!userId) {
       return NextResponse.json(

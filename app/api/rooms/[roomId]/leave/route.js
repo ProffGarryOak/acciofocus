@@ -6,33 +6,32 @@ import User from '@/models/user';
 
 export async function DELETE(request, { params }) {
   try {
-    const authResult = auth();
-    if (!authResult?.user?.email) {
+    const { userId } = auth();
+    if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     await connectDB();
     const { roomId } = params;
 
-    const user = await User.findOne({ 'profile.email': session.user.email });
+    // Find user by Clerk userId (profile.id)
+    const user = await User.findOne({ 'profile.id': userId });
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
     const roomIndex = user.studyRooms?.findIndex(room => room.id === roomId);
-    if (roomIndex === -1) {
+    if (roomIndex === -1 || roomIndex === undefined) {
       return NextResponse.json({ error: 'Room not found' }, { status: 404 });
     }
 
-    const room = user.studyRooms[roomIndex];
-
-    // Remove user from room
+    // Remove user from their own studyRooms
     user.studyRooms.splice(roomIndex, 1);
 
-    // Update participant count in all other users who have this room
+    // Update participant count and members in all other users who have this room
     const otherUsers = await User.find({ 
       'studyRooms.id': roomId,
-      'profile.email': { $ne: session.user.email }
+      'profile.id': { $ne: userId }
     });
 
     for (const otherUser of otherUsers) {
@@ -43,13 +42,11 @@ export async function DELETE(request, { params }) {
         otherUser.studyRooms[otherRoomIndex].members = members.filter(
           memberId => memberId !== user.profile.id
         );
-        
         // Decrease participant count
         otherUser.studyRooms[otherRoomIndex].participants = Math.max(
           0, 
           otherUser.studyRooms[otherRoomIndex].participants - 1
         );
-        
         otherUser.studyRooms[otherRoomIndex].lastActive = new Date();
       }
     }
