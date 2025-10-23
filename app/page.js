@@ -46,7 +46,7 @@ export default function Home() {
             {/* Text Content */}
             <div className="flex-1 flex flex-col items-start gap-2 text-left md:text-left">
               <h3 className="text-3xl md:text-4xl text-green-600 font-bold mb-2">Enter Focus Mode Instantly</h3>
-              <p className="text-gray-700 text-base md:text-lg mb-4">Don’t want to sign up? No problem. Start a solo study session right away with all the tools you need to stay on track. Designed for deep work. No login. No distractions. Just focus.</p>
+              <p className="text-gray-700 text-base md:text-lg mb-4">Don&apos;t want to sign up? No problem. Start a solo study session right away with all the tools you need to stay on track. Designed for deep work. No login. No distractions. Just focus.</p>
               <ul className="list-disc list-inside text-gray-700 space-y-1 ml-2 mb-6">
                 <li>Distraction-free Pomodoro timer</li>
                 <li>Ambient soundscapes for deep focus</li>
@@ -114,11 +114,11 @@ export default function Home() {
             {/* Text Content */}
             <div className="flex-1 flex flex-col items-end gap-2 text-right md:text-right">
               <h3 className="text-3xl md:text-4xl text-green-600 font-bold mb-2">Study Together, Stay Accountable</h3>
-              <p className="text-gray-700 text-base md:text-lg mb-4">Boost motivation and beat procrastination with our collaborative study rooms. Whether you're cramming for finals or tackling your daily goals — you're never alone.</p>
+              <p className="text-gray-700 text-base md:text-lg mb-4">Boost motivation and beat procrastination with our collaborative study rooms. Whether you&apos;re cramming for finals or tackling your daily goals — you&apos;re never alone.</p>
               <ul className="list-disc list-inside text-gray-700 space-y-1 ml-2 mb-6">
                 <li>Join public rooms to meet new study partners</li>
                 <li>Create private rooms to focus with friends</li>
-                <li>See live timers, who's active, and what they're working on</li>
+                <li>See live timers, who&apos;s active, and what they&apos;re working on</li>
                 <li>Share goals, track progress, and cheer each other on</li>
               </ul>
               <Link href="/study/solo" className="inline-flex items-center gap-2 px-6 py-3 bg-green-500 text-white rounded-lg font-semibold shadow hover:bg-green-600 transition text-lg">

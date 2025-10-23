@@ -200,7 +200,7 @@ export default function CustomLogin() {
               
               <div className="text-center mt-4">
                 <p className="text-sm text-green-600">
-                  Don't have an account?{" "}
+                  Don&apos;t have an account?{" "}
                   <a href="/signup" className="text-green-600 hover:text-green-800 font-medium">
                     Sign up
                   </a>
