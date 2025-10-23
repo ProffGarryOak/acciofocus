@@ -124,6 +124,7 @@ export default function RoomStudyPage({ params }) {
     activeWorkDuration, setActiveWorkDuration, activeBreakDuration, setActiveBreakDuration,
     pendingWorkDuration, setPendingWorkDuration, pendingBreakDuration, setPendingBreakDuration,
     pendingReset, setPendingReset, progress, setProgress, focusUnits, setFocusUnits,
+    isPaused, setIsPaused, pauseTimer, resumeTimer,
     skipSession, resetTimer
   } = usePomodoro();
   
@@ -164,33 +165,6 @@ export default function RoomStudyPage({ params }) {
     const interval = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(interval);
   }, []);
-
-  // Task handlers
-  const handleAddTask = () => {
-    if (newTask.trim()) {
-      setTasks([...tasks, { text: newTask.trim(), done: false }]);
-      setNewTask("");
-    }
-  };
-  const handleToggleTask = idx => {
-    setTasks(tasks => tasks.map((t, i) => i === idx ? { ...t, done: !t.done } : t));
-  };
-  const handleDeleteTask = idx => {
-    setTasks(tasks => tasks.filter((_, i) => i !== idx));
-  };
-  const handleEditTask = idx => {
-    setEditIdx(idx);
-    setEditText(tasks[idx].text);
-  };
-  const handleSaveEdit = idx => {
-    setTasks(tasks => tasks.map((t, i) => i === idx ? { ...t, text: editText } : t));
-    setEditIdx(null);
-    setEditText("");
-  };
-  const handleCancelEdit = () => {
-    setEditIdx(null);
-    setEditText("");
-  };
 
   // Timer formatting
   const min = String(Math.floor(secondsLeft / 60)).padStart(2, "0");
@@ -279,17 +253,16 @@ export default function RoomStudyPage({ params }) {
         </div>
       )}
       {/* Top Bar: Room title left, menu items right */}
-      <div className="fixed top-4 left-0 right-0 z-40 flex items-center justify-between px-6">
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full bg-green-400 animate-pulse"></div>
+      <div className="fixed w-full top-4 z-2 flex items-start justify-between px-6">
+        <div className="flex items-start gap-2">
           <h1 className="font-bold text-white text-lg md:text-2xl">
             {roomData ? (
-              <>
-                Study Room: <span className="text-blue-300">{roomData.name}</span>
+              <div className="flex flex-col items-start gap-2">
+                <span className="text-green-300">{roomData.name}</span>
                 {roomData.category && (
                   <span className="text-sm text-gray-400 ml-2">({roomData.category})</span>
                 )}
-              </>
+              </div>
             ) : (
               'Study Room'
             )}
@@ -733,8 +706,8 @@ export default function RoomStudyPage({ params }) {
       {/* Left Menu Toggle Buttons - Responsive: row at top left on mobile, column at 1/4 on md+ */}
       {!menuOpen && (
         <div
-          className="fixed z-40 flex gap-2 left-4 top-4 flex-row
-          md:flex-col md:gap-4 md:left-4 md:top-1/2 md:-translate-y-1/2"
+          className="fixed z-40 flex flex-col gap-2 left-4 top-1/2 -translate-y-1/2
+          "
         >
           <button
             className="bg-white/10 hover:bg-white/20 text-white/50 rounded-full p-3 shadow-lg backdrop-blur-sm flex items-center justify-center transition-all"
@@ -793,14 +766,19 @@ export default function RoomStudyPage({ params }) {
               {!isRunning ? (
                 <button
                   className="px-8 py-3 bg-green-500 text-white rounded-full font-bold shadow-lg hover:bg-green-600 transition flex items-center"
-                  onClick={() => setIsRunning(true)}
+                  onClick={() => {
+                    setIsRunning(true);
+                    if (isPaused) {
+                      resumeTimer();
+                    }
+                  }}
                 >
-                  <FaPlay className="mr-2" /> Start
+                  <FaPlay className="mr-2" /> {isPaused ? 'Resume' : 'Start'}
                 </button>
               ) : (
                 <button
                   className="px-8 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-full font-bold shadow-lg hover:from-amber-600 hover:to-orange-600 transition flex items-center"
-                  onClick={() => setIsRunning(false)}
+                  onClick={pauseTimer}
                 >
                   <FaPause className="mr-2" /> Pause
                 </button>
@@ -809,13 +787,17 @@ export default function RoomStudyPage({ params }) {
               <button
                 className="px-4 py-3 bg-white/10 hover:bg-white/20 text-white rounded-full font-bold shadow-lg transition flex items-center"
                 onClick={skipSession}
+                disabled={isPaused} // Disable skip while paused
               >
                 <FaStepForward />
               </button>
 
               <button
                 className="px-4 py-3 bg-white/10 hover:bg-white/20 text-white rounded-full font-bold shadow-lg transition flex items-center"
-                onClick={resetTimer}
+                onClick={() => {
+                  resetTimer();
+                  setIsPaused(false); // Reset pause state on timer reset
+                }}
               >
                 <FaRedo />
               </button>
@@ -833,7 +815,7 @@ export default function RoomStudyPage({ params }) {
                   <span>Break: {activeBreakDuration} min</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-green-400 font-mono text-base">�� {focusUnits}</span>
+                  <span className="text-green-400 font-mono text-base">{focusUnits}</span>
                   <span className="text-xs text-green-200">Focus Units</span>
                 </div>
                 <div className="flex items-center gap-2">
@@ -984,16 +966,12 @@ export default function RoomStudyPage({ params }) {
           {showMyTasks ? (
             <TaskList
               tasks={tasks}
+              setTasks={setTasks}
               newTask={newTask}
-              editIdx={editIdx}
-              editText={editText}
               setNewTask={setNewTask}
-              handleAddTask={handleAddTask}
-              handleToggleTask={handleToggleTask}
-              handleDeleteTask={handleDeleteTask}
-              handleEditTask={handleEditTask}
-              handleSaveEdit={handleSaveEdit}
-              handleCancelEdit={handleCancelEdit}
+              editIdx={editIdx}
+              setEditIdx={setEditIdx}
+              editText={editText}
               setEditText={setEditText}
             />
           ) : (

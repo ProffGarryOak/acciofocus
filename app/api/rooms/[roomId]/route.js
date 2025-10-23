@@ -11,10 +11,12 @@ export async function GET(request, { params }) {
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+    
 
     await connectDB();
-    
-    const roomID = params.roomId;
+
+    const { roomId } = await params;
+    const roomID = roomId;
     console.log('Fetching details for roomID:', roomID);
 
     // Find all users who have this room in their studyRooms array

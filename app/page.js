@@ -1,4 +1,3 @@
-
 import Navbar from "../components/navbar";
 import Link from "next/link";
 import { FaCheck, FaChartLine, FaUsers, FaHeadphones, FaClock, FaTrophy, FaLeaf, FaUserFriends, FaLock } from "react-icons/fa";
