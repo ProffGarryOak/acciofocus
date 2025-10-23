@@ -178,8 +178,8 @@ export default function CustomSignUp() {
             </h1>
             <p className="text-green-800">
               {isVerifying 
-                ? "We've sent a code to your email" 
-                : "Join our community of focused learners"}
+                ? &quot;We&apos;ve sent a code to your email&quot; 
+                : &quot;Join our community of focused learners&quot;}
             </p>
           </div>
           
