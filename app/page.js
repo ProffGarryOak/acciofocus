@@ -8,10 +8,10 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white">
       <Navbar />
-      <main className="pt-20 pb-16 flex flex-col items-center text-center px-6">
+      <main className="pt-20 pb-16 flex flex-col items-center text-center px-4">
        {/* Hero section */}
         <section
-          className="w-full h-[80vh] p-8 flex flex-col md:flex-row items-center justify-center gap-8 relative overflow-hidden rounded-2xl shadow-lg"
+          className="w-full h-[85vh] p-8 flex flex-col md:flex-row items-center justify-center gap-8 relative overflow-hidden rounded-2xl shadow-lg"
           style={{
             backgroundImage: 'url(/2.png)',
             backgroundSize: 'cover',
@@ -28,10 +28,10 @@ export default function Home() {
               Boost your productivity with focused study rooms, solo sessions, and collaborative tools. Join a community of learners and achieve your goals together!
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-start mb-8">
-              <Link href="/(auth)/signup" className="px-6 py-3 bg-green-500 text-white rounded-lg font-semibold shadow hover:bg-green-600 transition">
+              <Link href="/signup" className="px-6 py-3 bg-green-500 text-white rounded-lg font-semibold shadow hover:bg-green-600 transition">
                 Get Started
               </Link>
-              <Link href="/(auth)/login" className="px-6 py-3 bg-white border border-green-600 text-green-500 rounded-lg font-semibold shadow hover:bg-green-50 transition">
+              <Link href="/login" className="px-6 py-3 bg-white border border-green-600 text-green-500 rounded-lg font-semibold shadow hover:bg-green-50 transition">
                 Log In
               </Link>
             </div>
@@ -42,7 +42,7 @@ export default function Home() {
 
 
         {/* Solo section */}
-        <section className="w-full max-w-7xl mx-auto px-4 py-12 ">
+        <section className="w-full max-w-7xl py-10 px-4">
           <div className="flex flex-col-reverse md:flex-row items-center justify-between gap-10 md:gap-20">
             {/* Text Content */}
             <div className="flex-1 flex flex-col items-start gap-2 text-left md:text-left">
@@ -60,15 +60,15 @@ export default function Home() {
               </Link>
             </div>
             {/* Image */}
-            <div className="flex justify-center mb-6 md:mb-0">
-              <Image src="/D.png" alt="Solo Session Illustration" width={400} height={300} className="w-full max-w-xs md:max-w-sm h-auto object-contain drop-shadow-lg" />
+            <div className="flex justify-center md:mb-0">
+              <Image src="/solo.png" alt="Solo Session Illustration" width={400} height={300} className="w-full max-w-xs md:max-w-sm h-auto object-contain drop-shadow-lg" />
             </div>
           </div>
         </section>
 
        {/* Features Section */}
-        <section className="w-full py-16 max-w-7xl">
-          <div className="text-center mb-16">
+        <section className="w-full py-10 px-4 max-w-7xl">
+          <div className="text-left md:text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-green-500 mb-4">Supercharge Your Study Sessions</h2>
             <p className="text-lg text-gray-600 max-w-3xl mx-auto">
               Accio Focus provides all the tools you need to eliminate distractions and maximize productivity
@@ -110,10 +110,10 @@ export default function Home() {
         </section>
 
         {/* Room section */}
-        <section className="w-full max-w-7xl mx-auto px-4 py-12 ">
-          <div className="flex flex-col-reverse md:flex-row-reverse items-center justify-between gap-10 md:gap-20">
+        <section className="w-full max-w-7xl px-4 py-10 ">
+          <div className="flex  flex-col-reverse md:flex-row-reverse items-center md:items-end justify-between gap-10 md:gap-20">
             {/* Text Content */}
-            <div className="flex-1 flex flex-col items-end gap-2 text-right md:text-right">
+            <div className="flex-1 flex flex-col items-start md:items-end gap-2 text-left md:text-right">
               <h3 className="text-3xl md:text-4xl text-green-600 font-bold mb-2">Study Together, Stay Accountable</h3>
               <p className="text-gray-700 text-base md:text-lg mb-4">Boost motivation and beat procrastination with our collaborative study rooms. Whether you&apos;re cramming for finals or tackling your daily goals — you&apos;re never alone.</p>
               <ul className="list-disc list-inside text-gray-700 space-y-1 ml-2 mb-6">
@@ -122,20 +122,20 @@ export default function Home() {
                 <li>See live timers, who&apos;s active, and what they&apos;re working on</li>
                 <li>Share goals, track progress, and cheer each other on</li>
               </ul>
-              <Link href="/study/solo" className="inline-flex items-center gap-2 px-6 py-3 bg-green-500 text-white rounded-lg font-semibold shadow hover:bg-green-600 transition text-lg">
+              <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 bg-green-500 text-white rounded-lg font-semibold shadow hover:bg-green-600 transition text-lg">
                 <FaUsers className="text-2xl" />
                 Check out Rooms
               </Link>
             </div>
             {/* Image */}
-            <div className="flex justify-center mb-6 md:mb-0">
-              <Image src="/A.png" alt="Solo Session Illustration" width={400} height={300} className="w-full max-w-xs md:max-w-sm h-auto object-contain drop-shadow-lg" />
+            <div className="flex justify-center md:mb-0">
+              <Image src="/group.png" alt="Solo Session Illustration" width={600} height={500} className="w-full max-w-xs md:max-w-sm h-auto object-contain drop-shadow-lg" />
             </div>
           </div>
         </section>
 
         {/* How It Works Section */}
-        <section className="w-full py-16">
+        <section className="w-full py-10 px-4">
           <div className="max-w-7xl mx-auto">
             <div className="text-center mb-16">
               <h2 className="text-3xl md:text-4xl font-bold text-green-500 mb-4">How Accio Focus Works</h2>
@@ -165,7 +165,7 @@ export default function Home() {
         </section>
 
         {/* Stats Section */}
-        <section className="w-full py-16 bg-gradient-to-r from-green-500 to-emerald-600 rounded-2xl shadow-xl text-white">
+        <section className="w-full my-8 py-10 bg-gradient-to-r from-green-500 to-emerald-600 rounded-2xl shadow-xl text-white">
           <div className="max-w-7xl mx-auto">
             <div className="text-center mb-16">
               <h2 className="text-3xl md:text-4xl font-bold mb-4">Proven Results</h2>
@@ -253,7 +253,7 @@ export default function Home() {
         </section> */}
 
                 {/* Testimonials */}
-        <section className="w-full py-16 max-w-7xl">
+        <section className="w-full py-10 px-4 max-w-7xl">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-green-500 mb-4">What Our Users Say</h2>
             <p className="text-lg text-gray-600 max-w-3xl mx-auto">
@@ -302,7 +302,7 @@ export default function Home() {
               Join thousands of students and professionals who have found their focus with Accio Focus
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/(auth)/signup" className="px-8 py-4 bg-white text-green-600 rounded-xl font-bold text-lg shadow-lg hover:bg-green-50 transition transform hover:-translate-y-1">
+              <Link href="/signup" className="px-8 py-4 bg-white text-green-600 rounded-xl font-bold text-lg shadow-lg hover:bg-green-50 transition transform hover:-translate-y-1">
                 Join Now
               </Link>
               <Link href="/study/solo" className="px-8 py-4 bg-transparent border-2 border-white text-white rounded-xl font-bold text-lg hover:bg-white/10 transition">

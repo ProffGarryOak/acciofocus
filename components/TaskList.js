@@ -20,6 +20,30 @@ export default function TaskList({
     dueDate: new Date().toISOString().split('T')[0]
   });
 
+  // Guest/local mode: when API is unavailable or user is not authenticated
+  const [isGuest, setIsGuest] = useState(false);
+
+  // Load guest tasks from localStorage when guest mode is enabled
+  useEffect(() => {
+    if (!isGuest) return;
+    try {
+      const saved = localStorage.getItem('tempTasks');
+      if (saved) setTasks(JSON.parse(saved));
+    } catch (e) {
+      console.warn('Failed to parse local tasks:', e);
+    }
+  }, [isGuest]);
+
+  // Persist tasks locally for guests
+  useEffect(() => {
+    if (!isGuest) return;
+    try {
+      localStorage.setItem('tempTasks', JSON.stringify(tasks));
+    } catch (e) {
+      console.warn('Failed to save local tasks:', e);
+    }
+  }, [tasks, isGuest]);
+
   // Fetch tasks from database on component mount
   useEffect(() => {
     const fetchTasks = async () => {
@@ -27,9 +51,38 @@ export default function TaskList({
       try {
         const response = await fetch('/api/tasks');
         const data = await response.json();
-        setTasks(data);
+
+        if (!response.ok) {
+          // If unauthorized or other error, log and keep tasks as empty array
+          console.warn('Failed to fetch tasks:', response.status, data);
+          if (response.status === 401) {
+            // Not authenticated - switch to guest/local mode and load local tasks
+            setIsGuest(true);
+            try {
+              const saved = localStorage.getItem('tempTasks');
+              setTasks(saved ? JSON.parse(saved) : []);
+            } catch (e) {
+              setTasks([]);
+            }
+          } else if (data && Array.isArray(data.tasks)) {
+            setTasks(data.tasks);
+          } else {
+            setTasks([]);
+          }
+          return;
+        }
+
+        // Ensure we only set an array
+        if (Array.isArray(data)) {
+          setTasks(data);
+        } else if (data && Array.isArray(data.tasks)) {
+          setTasks(data.tasks);
+        } else {
+          setTasks([]);
+        }
       } catch (error) {
         console.error('Failed to fetch tasks:', error);
+        setTasks([]);
       } finally {
         setLoading(false);
       }
@@ -40,7 +93,8 @@ export default function TaskList({
 
   // Corrected sorting logic
   const sortedTasks = useMemo(() => {
-    return [...tasks].sort((a, b) => {
+    const taskArray = Array.isArray(tasks) ? tasks : [];
+    return [...taskArray].sort((a, b) => {
       // For creationDate and dueDate, convert to timestamps
       if (sortOption === 'creationDate' || sortOption === 'dueDate') {
         const aDate = new Date(a[sortOption]).getTime();
@@ -82,12 +136,18 @@ export default function TaskList({
         body: JSON.stringify({ completed: updatedStatus }),
       });
 
-      if (response.ok) {
+      if (!response.ok) {
+        if (response.status === 401) {
+          // Guest fallback: update locally
+          setIsGuest(true);
+          setTasks(tasks.map(t => t.id === taskId ? { ...t, completed: updatedStatus } : t));
+        } else {
+          throw new Error('Failed to update task');
+        }
+      } else {
         setTasks(tasks.map(t => 
           t.id === taskId ? { ...t, completed: updatedStatus } : t
         ));
-      } else {
-        throw new Error('Failed to update task');
       }
     } catch (error) {
       console.error('Error updating task:', error);
@@ -118,6 +178,28 @@ export default function TaskList({
       });
 
       if (!response.ok) {
+        if (response.status === 401) {
+          // Guest fallback: create temporary task and persist locally
+          setIsGuest(true);
+          const createdTask = {
+            id: 'temp-' + Date.now() + '-' + Math.floor(Math.random() * 10000),
+            title: taskForm.title.trim(),
+            subject: taskForm.subject || '',
+            priority: taskForm.priority || 'medium',
+            dueDate: taskForm.dueDate || new Date().toISOString().split('T')[0],
+            createdAt: new Date().toISOString(),
+            completed: false,
+            _temp: true
+          };
+          setTasks(prev => [createdTask, ...prev]);
+          setTaskForm({
+            title: '',
+            subject: '',
+            priority: 'medium',
+            dueDate: new Date().toISOString().split('T')[0]
+          });
+          return;
+        }
         const errorData = await response.json();
         throw new Error(errorData.error || 'Failed to create task');
       }
@@ -150,11 +232,17 @@ export default function TaskList({
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to delete task');
+        if (response.status === 401) {
+          // Guest fallback: remove locally
+          setIsGuest(true);
+          setTasks(tasks.filter(t => t.id !== taskId));
+        } else {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Failed to delete task');
+        }
+      } else {
+        setTasks(tasks.filter(t => t.id !== taskId));
       }
-
-      setTasks(tasks.filter(t => t.id !== taskId));
     } catch (error) {
       console.error('Error deleting task:', error);
       alert('Failed to delete task. Please try again.');
@@ -175,14 +263,22 @@ export default function TaskList({
         body: JSON.stringify({ title: editText.trim() }),
       });
 
-      if (response.ok) {
+      if (!response.ok) {
+        if (response.status === 401) {
+          // Guest fallback: update locally
+          setIsGuest(true);
+          setTasks(tasks.map(t => t.id === taskId ? { ...t, title: editText.trim() } : t));
+          setEditIdx(-1);
+          setEditText("");
+        } else {
+          throw new Error('Failed to update task');
+        }
+      } else {
         setTasks(tasks.map(t => 
           t.id === taskId ? { ...t, title: editText.trim() } : t
         ));
         setEditIdx(-1);
         setEditText("");
-      } else {
-        throw new Error('Failed to update task');
       }
     } catch (error) {
       console.error('Error updating task:', error);
@@ -232,6 +328,7 @@ export default function TaskList({
         <h2 className="font-bold text-lg flex items-center gap-2 text-gray-800">
           <FaTasks className="text-green-500" /> Tasks
         </h2>
+        
         <div className="flex gap-2">
           <button 
             onClick={() => setShowAddForm(!showAddForm)}
@@ -299,6 +396,11 @@ export default function TaskList({
           </div>
         </div>
       </div>
+      {isGuest && (
+          <div className="mb-4 text-xs text-yellow-800 bg-yellow-50 px-3 py-1 rounded">
+            You are not signed in. Tasks are stored locally only
+          </div>
+        )}
 
       {/* Collapsible Add Task Form */}
       {showAddForm && (
