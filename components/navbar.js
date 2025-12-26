@@ -25,12 +25,13 @@ const USER_NAV_ITEMS = [
 ];
 
 export default function Navbar() {
+  // Route-aware active link (call hook first to satisfy rules-of-hooks)
+  const pathname = usePathname();
+
   const [visible, setVisible] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const lastScrollY = useRef(0);
 
-  // Route-aware active link
-  const pathname = usePathname() || '/';
   const isActive = (href) => {
     if (!pathname) return false;
     if (href === '/') return pathname === '/';
