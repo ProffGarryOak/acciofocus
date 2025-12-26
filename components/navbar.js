@@ -4,9 +4,7 @@ import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from 'next/navigation';
 import { 
-  ClerkProvider,
-  SignInButton,
-  SignUpButton,
+  // Make sure these components are used within a global ClerkProvider context
   SignedIn,
   SignedOut,
   UserButton,
@@ -25,7 +23,7 @@ const USER_NAV_ITEMS = [
 ];
 
 export default function Navbar() {
-  // Route-aware active link (call hook first to satisfy rules-of-hooks)
+  // ✅ This is correct: usePathname() is called unconditionally at the top level
   const pathname = usePathname();
 
   const [visible, setVisible] = useState(true);
@@ -34,8 +32,9 @@ export default function Navbar() {
 
   const isActive = (href) => {
     if (!pathname) return false;
+    // Simplified active logic
     if (href === '/') return pathname === '/';
-    return pathname === href || pathname.startsWith(href + '/') || pathname.startsWith(href);
+    return pathname.startsWith(href); 
   };
 
   useEffect(() => {
@@ -74,7 +73,7 @@ export default function Navbar() {
             </span>
           </Link>
 
-          {/* Desktop Navigation */}
+          {/* Desktop Navigation (Center) */}
           <div className="hidden md:flex flex-1 justify-center">
             <div className="flex items-center gap-6">
               {NAV_ITEMS.map((item) => (
@@ -120,43 +119,42 @@ export default function Navbar() {
             </button>
           </div>
 
-          {/* Right side: Auth buttons */}
+          {/* Right side: Auth buttons (Desktop) */}
           <div className="hidden md:flex items-center gap-3">
-            <ClerkProvider>
-              <SignedOut>
-                <Link href="/login">
-                  <button className="px-4 py-2 bg-white border border-green-600 text-green-600 rounded-lg font-semibold shadow hover:bg-green-50 transition">
-                    Sign In
-                  </button>
-                </Link>
-                <Link href="/signup">
-                  <button className="px-4 py-2 bg-green-600 text-white rounded-lg font-semibold shadow hover:bg-green-700 transition border-2 border-green-600">
-                    Sign Up
-                  </button>
-                </Link>
-              </SignedOut>
-              <SignedIn>
-                <div className="flex items-center gap-6">
-                  {USER_NAV_ITEMS.map((item) => (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      className={`font-semibold transition-colors ${isActive(item.href) ? 'text-green-500' : 'text-gray-600 hover:text-green-700'}`}
-                    >
-                      {item.label}
-                    </Link>
-                  ))}
-                </div>
-                <div className="ml-4">
-                  <UserButton afterSignOutUrl="/" />
-                </div>
-              </SignedIn>
-            </ClerkProvider>
+            {/* ClerkProvider instances removed here */}
+            <SignedOut>
+              <Link href="/login">
+                <button className="px-4 py-2 bg-white border border-green-600 text-green-600 rounded-lg font-semibold shadow hover:bg-green-50 transition">
+                  Sign In
+                </button>
+              </Link>
+              <Link href="/signup">
+                <button className="px-4 py-2 bg-green-600 text-white rounded-lg font-semibold shadow hover:bg-green-700 transition border-2 border-green-600">
+                  Sign Up
+                </button>
+              </Link>
+            </SignedOut>
+            <SignedIn>
+              <div className="flex items-center gap-6">
+                {USER_NAV_ITEMS.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`font-semibold transition-colors ${isActive(item.href) ? 'text-green-500' : 'text-gray-600 hover:text-green-700'}`}
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+              </div>
+              <div className="ml-4">
+                <UserButton afterSignOutUrl="/" />
+              </div>
+            </SignedIn>
           </div>
         </div>
       </nav>
 
-      {/* Mobile menu */}
+      {/* Mobile menu (Conditional Rendering) */}
       {mobileMenuOpen && (
         <div className="fixed top-16 left-0 w-full bg-white z-40 md:hidden shadow-lg transition-all duration-300">
           <div className="px-4 py-6 border-t border-gray-100">
@@ -173,50 +171,49 @@ export default function Navbar() {
               ))}
             </div>
             
-            <ClerkProvider>
+            {/* ClerkProvider instances removed here */}
+            <SignedIn>
+              <div className="mt-4 pt-4 border-t border-gray-100">
+                <div className="flex flex-col gap-4">
+                  {USER_NAV_ITEMS.map((item) => (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={`font-medium py-2 px-4 rounded-lg transition-colors ${isActive(item.href) ? 'text-green-500 bg-green-50' : 'text-gray-700 hover:text-green-700 hover:bg-green-50'}`}
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      {item.label}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </SignedIn>
+            
+            <div className="mt-6 flex flex-col gap-3">
+              <SignedOut>
+                <Link href="/login">
+                  <button
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="w-full py-3 bg-white border border-green-600 text-green-600 rounded-lg font-semibold hover:bg-green-50 transition"
+                  >
+                    Sign In
+                  </button>
+                </Link>
+                <Link href="/signup">
+                  <button
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="w-full py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition"
+                  >
+                    Sign Up
+                  </button>
+                </Link>
+              </SignedOut>
               <SignedIn>
-                <div className="mt-4 pt-4 border-t border-gray-100">
-                  <div className="flex flex-col gap-4">
-                    {USER_NAV_ITEMS.map((item) => (
-                      <Link
-                        key={item.href}
-                        href={item.href}
-                        className={`font-medium py-2 px-4 rounded-lg transition-colors ${isActive(item.href) ? 'text-green-500 bg-green-50' : 'text-gray-700 hover:text-green-700 hover:bg-green-50'}`}
-                        onClick={() => setMobileMenuOpen(false)}
-                      >
-                        {item.label}
-                      </Link>
-                    ))}
-                  </div>
+                <div className="flex justify-center mt-4">
+                  <UserButton afterSignOutUrl="/" />
                 </div>
               </SignedIn>
-              
-              <div className="mt-6 flex flex-col gap-3">
-                <SignedOut>
-                  <Link href="/login">
-                    <button
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="w-full py-3 bg-white border border-green-600 text-green-600 rounded-lg font-semibold hover:bg-green-50 transition"
-                    >
-                      Sign In
-                    </button>
-                  </Link>
-                  <Link href="/signup">
-                    <button
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="w-full py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition"
-                    >
-                      Sign Up
-                    </button>
-                  </Link>
-                </SignedOut>
-                <SignedIn>
-                  <div className="flex justify-center mt-4">
-                    <UserButton afterSignOutUrl="/" />
-                  </div>
-                </SignedIn>
-              </div>
-            </ClerkProvider>
+            </div>
           </div>
         </div>
       )}
