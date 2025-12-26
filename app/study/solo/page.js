@@ -740,7 +740,7 @@ ${isActive ? "bg-white" : ""}`}
             {/* Top Right Controls: Back Button & Sound Control */}
             <div className="fixed top-4 right-4 z-40 flex flex-row-reverse gap-4">
                 <Link
-                    href="/"
+                    href={user ? '/dashboard' : '/'}
                     className="bg-white/10 hover:bg-white/20 text-white/50 rounded-full p-3 shadow-lg backdrop-blur-sm flex items-center justify-center"
                     style={{ width: 48, height: 48 }}
                 >

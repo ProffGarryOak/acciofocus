@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { usePathname } from 'next/navigation';
 import { 
   ClerkProvider,
   SignInButton,
@@ -27,6 +28,14 @@ export default function Navbar() {
   const [visible, setVisible] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const lastScrollY = useRef(0);
+
+  // Route-aware active link
+  const pathname = usePathname ? usePathname() : '/';
+  const isActive = (href) => {
+    if (!pathname) return false;
+    if (href === '/') return pathname === '/';
+    return pathname === href || pathname.startsWith(href + '/') || pathname.startsWith(href);
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -71,9 +80,7 @@ export default function Navbar() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`text-gray-600 hover:text-green-700 font-medium transition-colors ${
-                    item.label === "Solo Study" ? "font-semibold text-green-600" : ""
-                  }`}
+                  className={`font-medium transition-colors ${isActive(item.href) ? 'text-green-500' : 'text-gray-600 hover:text-green-700'}`}
                 >
                   {item.label}
                 </Link>
@@ -133,7 +140,7 @@ export default function Navbar() {
                     <Link
                       key={item.href}
                       href={item.href}
-                      className="text-gray-600 hover:text-green-700 font-medium transition-colors"
+                      className={`font-semibold transition-colors ${isActive(item.href) ? 'text-green-500' : 'text-gray-600 hover:text-green-700'}`}
                     >
                       {item.label}
                     </Link>
@@ -157,7 +164,7 @@ export default function Navbar() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="text-gray-700 hover:text-green-700 font-medium py-2 px-4 rounded-lg hover:bg-green-50 transition-colors"
+                  className={`font-medium py-2 px-4 rounded-lg transition-colors ${isActive(item.href) ? 'text-green-500 bg-green-50' : 'text-gray-700 hover:text-green-700 hover:bg-green-50'}`}
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   {item.label}
@@ -173,7 +180,7 @@ export default function Navbar() {
                       <Link
                         key={item.href}
                         href={item.href}
-                        className="text-gray-700 hover:text-green-700 font-medium py-2 px-4 rounded-lg hover:bg-green-50 transition-colors"
+                        className={`font-medium py-2 px-4 rounded-lg transition-colors ${isActive(item.href) ? 'text-green-500 bg-green-50' : 'text-gray-700 hover:text-green-700 hover:bg-green-50'}`}
                         onClick={() => setMobileMenuOpen(false)}
                       >
                         {item.label}

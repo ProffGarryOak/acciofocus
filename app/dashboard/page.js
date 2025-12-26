@@ -23,11 +23,11 @@ function formatDate(dateStr) {
 
 function formatDateTime(dateStr) {
   const d = new Date(dateStr);
-  return d.toLocaleString([], { 
-    month: 'short', 
-    day: 'numeric', 
-    hour: '2-digit', 
-    minute: '2-digit' 
+  return d.toLocaleString([], {
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
   });
 }
 
@@ -35,7 +35,7 @@ export default function DashboardPage() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  
+
   // State for active tab
   const [activeTab, setActiveTab] = useState('overview');
   // State for task completion
@@ -50,7 +50,7 @@ export default function DashboardPage() {
       try {
         console.log('=== Dashboard: Starting to fetch user data ===');
         console.log('Fetching user data from /api/user/me...');
-        
+
         const res = await fetch('/api/user/me', {
           method: 'GET',
           headers: {
@@ -60,13 +60,13 @@ export default function DashboardPage() {
         console.log('Response received from /api/user/me', res);
         console.log('Response status:', res.status);
         console.log('Response headers:', Object.fromEntries(res.headers.entries()));
-        
+
         if (!res.ok) {
           const errorData = await res.json();
           console.error('API Error:', errorData);
           throw new Error(`HTTP error! status: ${res.status}, message: ${errorData.error || 'Unknown error'}`);
         }
-        
+
         const data = await res.json();
         console.log('User data received:', data);
         console.log('Goals data:', data.goals);
@@ -84,15 +84,15 @@ export default function DashboardPage() {
     };
     fetchData();
   }, []);
-  
+
   if (error) return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center">
       <div className="text-center max-w-md mx-auto p-6">
         <div className="text-red-500 text-6xl mb-4">⚠️</div>
         <h2 className="text-xl font-bold text-gray-800 mb-2">Error Loading Dashboard</h2>
         <p className="text-gray-600 mb-4">{error}</p>
-        <button 
-          onClick={() => window.location.reload()} 
+        <button
+          onClick={() => window.location.reload()}
           className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors"
         >
           Try Again
@@ -102,8 +102,8 @@ export default function DashboardPage() {
   );
 
   if (loading) return (
-    <PageLoader 
-      message="Loading your dashboard..." 
+    <PageLoader
+      message="Loading your dashboard..."
       className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center"
     />
   );
@@ -114,8 +114,8 @@ export default function DashboardPage() {
         <div className="text-gray-500 text-6xl mb-4">👤</div>
         <h2 className="text-xl font-bold text-gray-800 mb-2">No User Data Found</h2>
         <p className="text-gray-600 mb-4">Unable to load your profile information. Please try refreshing the page or contact support.</p>
-        <button 
-          onClick={() => window.location.reload()} 
+        <button
+          onClick={() => window.location.reload()}
           className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors"
         >
           Refresh Page
@@ -123,7 +123,7 @@ export default function DashboardPage() {
       </div>
     </div>
   );
-  
+
   // Safely destructure with default values
   const stats = user.stats || {
     totalStudyTime: 0,
@@ -157,21 +157,21 @@ export default function DashboardPage() {
   };
 
   // Filter achievements
-  const filteredAchievements = achievementFilter === 'all' 
-    ? achievements 
+  const filteredAchievements = achievementFilter === 'all'
+    ? achievements
     : achievements.filter(a => achievementFilter === 'earned' ? a.earned : !a.earned);
-  console.log("chadalmod :              ===============================================",user.profile);
+  console.log("chadalmod :              ===============================================", user.profile);
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
       <Navbar />
       {/* Main Dashboard */}
-      <div className="max-w-7xl mx-auto px-4 pt-24 pb-12">
+      <div className="max-w-7xl mx-auto px-4 pt-18 md:pt-24 pb-12">
         {/* Profile Header */}
         <div className="flex flex-col lg:flex-row gap-6 mb-8">
           <div className="bg-white rounded-2xl shadow-lg p-6 flex-1">
-            <Profile 
-              profile={user.profile} 
-              onEditBio={bio => setUser(prev => ({ ...prev, profile: { ...prev.profile, bio } }))} 
+            <Profile
+              profile={user.profile}
+              onEditBio={bio => setUser(prev => ({ ...prev, profile: { ...prev.profile, bio } }))}
             />
           </div>
           <StudyStats recentSessions={user.recentSessions} />
@@ -198,12 +198,12 @@ export default function DashboardPage() {
             >
               Community
             </button>
-            <button
+            {/* <button
               className={`flex-1 px-6 py-2 font-semibold rounded-full transition-all duration-150 text-sm ${activeTab === 'achievements' ? 'bg-green-500 text-white shadow' : 'text-gray-600 hover:bg-green-100'}`}
               onClick={() => setActiveTab('achievements')}
             >
               Achievements
-            </button>
+            </button> */}
           </div>
         </div>
         {/* Overview Tab */}
@@ -211,8 +211,63 @@ export default function DashboardPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Tasks Section */}
             <TasksSection taskList={taskList} setTaskList={setTaskList} />
-            {/* Recent Sessions */}
-            <RecentSessions />
+            {/* Study Goals */}
+            <div className="bg-white rounded-2xl shadow-lg p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="font-bold text-lg flex items-center gap-2 text-gray-800">
+                  <FaStar className="text-purple-500" /> Study Goals
+                </h2>
+                <button
+                  className="flex items-center gap-1 text-sm bg-green-500 text-white px-3 py-1 rounded-lg hover:bg-green-600 transition-colors"
+                  onClick={addNewGoal}
+                >
+                  <FaPlus size={12} /> Add Goal
+                </button>
+              </div>
+              <div className="space-y-5">
+                {goalList.map(goal => (
+                  <div
+                    key={goal.id}
+                    className="border border-gray-200 rounded-xl p-4 hover:border-purple-300 transition-colors"
+                  >
+                    <div className="flex justify-between items-start mb-2">
+                      <h3 className="font-semibold text-gray-800">{goal.title}</h3>
+                      <span className={`text-xs px-2 py-1 rounded-full ${goal.status === 'completed' ? 'bg-green-100 text-green-800' :
+                        'bg-yellow-100 text-yellow-800'
+                        }`}>
+                        {goal.status}
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-600 mb-3">{goal.description}</p>
+                    <div className="flex flex-wrap gap-3 text-xs text-gray-500 mb-3">
+                      <div className="flex items-center">
+                        <span className="font-medium">Category:</span>
+                        <span className="ml-1">{goal.category}</span>
+                      </div>
+                      <div className="flex items-center">
+                        <span className="font-medium">Deadline:</span>
+                        <span className="ml-1">{formatDate(goal.deadline)}</span>
+                      </div>
+                      <div className="flex items-center">
+                        <span className="font-medium">Progress:</span>
+                        <span className="ml-1">{goal.completedHours}h / {goal.targetHours}h</span>
+                      </div>
+                    </div>
+                    <div className="w-full bg-gray-200 h-2 rounded-full mb-1">
+                      <div
+                        className={`h-full rounded-full ${(goal.completedHours || 0) / (goal.targetHours || 1) > 0.75 ? 'bg-green-500' :
+                          (goal.completedHours || 0) / (goal.targetHours || 1) > 0.5 ? 'bg-blue-500' : 'bg-yellow-500'
+                          }`}
+                        style={{ width: `${Math.round(((goal.completedHours || 0) / (goal.targetHours || 1)) * 100)}%` }}
+                      ></div>
+                    </div>
+                    <div className="text-right text-xs text-gray-500">
+                      {Math.round(((goal.completedHours || 0) / (goal.targetHours || 1)) * 100)}% Complete
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
             {/* Study Rooms */}
             <div className="bg-white rounded-2xl shadow-lg p-6 lg:col-span-2">
               <div className="flex justify-between items-center mb-4">
@@ -225,8 +280,8 @@ export default function DashboardPage() {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {studyRooms.map(room => (
-                  <div 
-                    key={room.id} 
+                  <div
+                    key={room.id}
                     className={`border rounded-xl p-4 flex flex-col ${room.favorite ? 'border-yellow-400 bg-yellow-50' : 'border-gray-200'}`}
                   >
                     <div className="flex justify-between items-start mb-2">
@@ -248,69 +303,62 @@ export default function DashboardPage() {
                 ))}
               </div>
             </div>
+            {/* Achievements Section */}
+            <div className="bg-white w-full lg:col-span-2 rounded-2xl shadow-lg p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="font-bold text-lg flex items-center gap-2 text-gray-800">
+                  <FaTrophy className="text-amber-500" /> Achievements
+                </h2>
+                <div className="flex gap-2">
+                  <button
+                    className={`px-3 py-1 text-sm rounded-lg ${achievementFilter === 'all' ? 'bg-amber-500 text-white' : 'bg-amber-100 text-amber-800'}`}
+                    onClick={() => setAchievementFilter('all')}
+                  >
+                    All
+                  </button>
+                  <button
+                    className={`px-3 py-1 text-sm rounded-lg ${achievementFilter === 'earned' ? 'bg-amber-500 text-white' : 'bg-amber-100 text-amber-800'}`}
+                    onClick={() => setAchievementFilter('earned')}
+                  >
+                    Earned
+                  </button>
+                  <button
+                    className={`px-3 py-1 text-sm rounded-lg ${achievementFilter === 'locked' ? 'bg-amber-500 text-white' : 'bg-amber-100 text-amber-800'}`}
+                    onClick={() => setAchievementFilter('locked')}
+                  >
+                    Locked
+                  </button>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                {filteredAchievements.map(achievement => (
+                  <div
+                    key={achievement.id}
+                    className={`border rounded-xl p-4 flex flex-col items-center text-center ${achievement.earned ? 'border-amber-300 bg-amber-50' : 'border-gray-200 opacity-70'
+                      }`}
+                  >
+                    <div className="text-4xl mb-3">{achievement.icon}</div>
+                    <h3 className="font-semibold text-gray-800 mb-1">{achievement.title}</h3>
+                    <p className="text-sm text-gray-600 mb-3">{achievement.description}</p>
+                    {achievement.earned ? (
+                      <div className="text-xs text-amber-600 font-medium">
+                        Earned on {formatDate(achievement.dateEarned)}
+                      </div>
+                    ) : (
+                      <div className="text-xs text-gray-500">Not yet earned</div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         )}
         {/* Stats Tab */}
         {activeTab === 'stats' && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="bg-white rounded-2xl shadow-lg p-6">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="font-bold text-lg flex items-center gap-2 text-gray-800">
-                  <FaStar className="text-purple-500" /> Study Goals
-                </h2>
-                <button 
-                  className="flex items-center gap-1 text-sm bg-green-500 text-white px-3 py-1 rounded-lg hover:bg-green-600 transition-colors"
-                  onClick={addNewGoal}
-                >
-                  <FaPlus size={12} /> Add Goal
-                </button>
-              </div>
-              <div className="space-y-5">
-                {goalList.map(goal => (
-                  <div 
-                    key={goal.id} 
-                    className="border border-gray-200 rounded-xl p-4 hover:border-purple-300 transition-colors"
-                  >
-                    <div className="flex justify-between items-start mb-2">
-                      <h3 className="font-semibold text-gray-800">{goal.title}</h3>
-                      <span className={`text-xs px-2 py-1 rounded-full ${
-                        goal.status === 'completed' ? 'bg-green-100 text-green-800' : 
-                        'bg-yellow-100 text-yellow-800'
-                      }`}>
-                        {goal.status}
-                      </span>
-                    </div>
-                    <p className="text-sm text-gray-600 mb-3">{goal.description}</p>
-                    <div className="flex flex-wrap gap-3 text-xs text-gray-500 mb-3">
-                      <div className="flex items-center">
-                        <span className="font-medium">Category:</span>
-                        <span className="ml-1">{goal.category}</span>
-                      </div>
-                      <div className="flex items-center">
-                        <span className="font-medium">Deadline:</span>
-                        <span className="ml-1">{formatDate(goal.deadline)}</span>
-                      </div>
-                      <div className="flex items-center">
-                        <span className="font-medium">Progress:</span>
-                        <span className="ml-1">{goal.completedHours}h / {goal.targetHours}h</span>
-                      </div>
-                    </div>
-                    <div className="w-full bg-gray-200 h-2 rounded-full mb-1">
-                      <div 
-                        className={`h-full rounded-full ${
-                          (goal.completedHours || 0) / (goal.targetHours || 1) > 0.75 ? 'bg-green-500' :
-                          (goal.completedHours || 0) / (goal.targetHours || 1) > 0.5 ? 'bg-blue-500' : 'bg-yellow-500'
-                        }`} 
-                        style={{ width: `${Math.round(((goal.completedHours || 0) / (goal.targetHours || 1)) * 100)}%` }}
-                      ></div>
-                    </div>
-                    <div className="text-right text-xs text-gray-500">
-                      {Math.round(((goal.completedHours || 0) / (goal.targetHours || 1)) * 100)}% Complete
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+            {/* Recent Sessions */}
+            <RecentSessions />
+
             <div className="bg-white rounded-2xl shadow-lg p-6">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="font-bold text-lg flex items-center gap-2 text-gray-800">
@@ -326,7 +374,7 @@ export default function DashboardPage() {
                   <div className="flex items-end h-24 gap-2">
                     {(stats.productivityTrend || []).map((day, index) => (
                       <div key={index} className="flex-1 flex flex-col items-center">
-                        <div 
+                        <div
                           className="w-full bg-green-400 rounded-t-md hover:bg-green-500 transition-colors"
                           style={{ height: `${((day.minutes || 0) / 180) * 100}%` }}
                           title={`${day.minutes || 0} minutes on ${formatDate(day.date)}`}
@@ -346,7 +394,7 @@ export default function DashboardPage() {
                     <div key={subject} className="flex items-center">
                       <div className="w-24 text-sm text-gray-600 truncate">{subject}</div>
                       <div className="flex-1 h-3 bg-gray-200 rounded-full overflow-hidden mx-2">
-                        <div 
+                        <div
                           className="h-full bg-gradient-to-r from-green-400 to-blue-500"
                           style={{ width: `${(minutes / (stats.totalStudyTime || 1)) * 100}%` }}
                         ></div>
@@ -375,21 +423,20 @@ export default function DashboardPage() {
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {friends.map(friend => (
-                  <div 
-                    key={friend.id} 
+                  <div
+                    key={friend.id}
                     className="border border-gray-200 rounded-xl p-4 hover:border-green-300 transition-colors"
                   >
                     <div className="flex items-start">
                       <div className="relative">
-                        <Image 
-                          src={friend.avatar} 
-                          alt={friend.name} 
-                          className="w-12 h-12 rounded-full border-2 border-green-300" 
+                        <Image
+                          src={friend.avatar}
+                          alt={friend.name}
+                          className="w-12 h-12 rounded-full border-2 border-green-300"
                         />
-                        <div 
-                          className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white ${
-                            friend.status === 'online' ? 'bg-green-500' : 'bg-gray-400'
-                          }`}
+                        <div
+                          className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white ${friend.status === 'online' ? 'bg-green-500' : 'bg-gray-400'
+                            }`}
                         ></div>
                       </div>
                       <div className="ml-3 flex-1">
@@ -472,56 +519,6 @@ export default function DashboardPage() {
           </div>
         )}
         {/* Achievements Tab */}
-        {activeTab === 'achievements' && (
-          <div className="bg-white rounded-2xl shadow-lg p-6">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="font-bold text-lg flex items-center gap-2 text-gray-800">
-                <FaTrophy className="text-amber-500" /> Achievements
-              </h2>
-              <div className="flex gap-2">
-                <button 
-                  className={`px-3 py-1 text-sm rounded-lg ${achievementFilter === 'all' ? 'bg-amber-500 text-white' : 'bg-amber-100 text-amber-800'}`}
-                  onClick={() => setAchievementFilter('all')}
-                >
-                  All
-                </button>
-                <button 
-                  className={`px-3 py-1 text-sm rounded-lg ${achievementFilter === 'earned' ? 'bg-amber-500 text-white' : 'bg-amber-100 text-amber-800'}`}
-                  onClick={() => setAchievementFilter('earned')}
-                >
-                  Earned
-                </button>
-                <button 
-                  className={`px-3 py-1 text-sm rounded-lg ${achievementFilter === 'locked' ? 'bg-amber-500 text-white' : 'bg-amber-100 text-amber-800'}`}
-                  onClick={() => setAchievementFilter('locked')}
-                >
-                  Locked
-                </button>
-              </div>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-              {filteredAchievements.map(achievement => (
-                <div 
-                  key={achievement.id} 
-                  className={`border rounded-xl p-4 flex flex-col items-center text-center ${
-                    achievement.earned ? 'border-amber-300 bg-amber-50' : 'border-gray-200 opacity-70'
-                  }`}
-                >
-                  <div className="text-4xl mb-3">{achievement.icon}</div>
-                  <h3 className="font-semibold text-gray-800 mb-1">{achievement.title}</h3>
-                  <p className="text-sm text-gray-600 mb-3">{achievement.description}</p>
-                  {achievement.earned ? (
-                    <div className="text-xs text-amber-600 font-medium">
-                      Earned on {formatDate(achievement.dateEarned)}
-                    </div>
-                  ) : (
-                    <div className="text-xs text-gray-500">Not yet earned</div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
