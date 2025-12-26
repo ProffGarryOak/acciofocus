@@ -30,7 +30,7 @@ export default function Navbar() {
   const lastScrollY = useRef(0);
 
   // Route-aware active link
-  const pathname = usePathname ? usePathname() : '/';
+  const pathname = usePathname() || '/';
   const isActive = (href) => {
     if (!pathname) return false;
     if (href === '/') return pathname === '/';
